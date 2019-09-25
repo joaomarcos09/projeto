@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,6 +12,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.security.Principal;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +25,9 @@ public class MainActivity extends AppCompatActivity {
     EditText etSenha;
     TextView tvMsgCadastro;
     LineHolder lh = new LineHolder();
+    UserService service = RetrofitClientInstance
+            .getRetrofitInstance()
+            .create(UserService.class);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,16 +61,29 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public boolean verificaLogin(String email, String senha){
-        int i;
-        UserModel usu = lh.getUsuario(email);
+        final UserModel[] user = {new UserModel()};
+        Call<UserModel> callGetOne = service.getUser(email);
+        callGetOne.enqueue(new Callback<UserModel>() {
+            @Override
+            public void onResponse(Call<UserModel> call, Response<UserModel> response) {
+                user[0] = response.body();
+                Log.i("GET", user[0].toString());
+            }
 
-        if(usu == null){
-            return false;
-        }
-        if(usu.getSenha().toString().equals(senha)){
+            @Override
+            public void onFailure(Call<UserModel> call, Throwable t) {
+
+            }
+        });
+    if(user[0] != null){
+        if(user[0].getSenha() == senha){
             return true;
         }else {
             return false;
         }
+    }else{
+        return false;
+    }
+
     }
 }

@@ -5,11 +5,14 @@ import android.text.Editable;
 public class UserModel {
     private String email;
     private String nome;
-    private String matricula;
+    private Integer matricula;
     private String curso;
     private String senha;
 
-    public UserModel(String nome, String email, String matricula, String curso, String senha) {
+    public UserModel() {
+    }
+
+    public UserModel(String nome, String email, Integer matricula, String curso, String senha) {
         this.email = email;
         this.nome = nome;
         this.matricula = matricula;
@@ -17,11 +20,11 @@ public class UserModel {
         this.senha = senha;
     }
 
-    public String getMatricula() {
+    public Integer getMatricula() {
         return matricula;
     }
 
-    public void setMatricula(String matricula) {
+    public void setMatricula(Integer matricula) {
         this.matricula = matricula;
     }
 
