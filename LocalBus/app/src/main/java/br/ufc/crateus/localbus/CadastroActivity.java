@@ -10,6 +10,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.List;
 
 import retrofit2.Call;
@@ -25,7 +28,7 @@ public class CadastroActivity extends AppCompatActivity {
     EditText etSenha;
     EditText etConfirmaSenha;
     Button btCadastrar;
-    LineHolder lh = new LineHolder();
+    DatabaseReference myRef;
     UserService service = RetrofitClientInstance
             .getRetrofitInstance()
             .create(UserService.class);
@@ -42,6 +45,9 @@ public class CadastroActivity extends AppCompatActivity {
         etConfirmaSenha = (EditText) findViewById(R.id.etConfirmaSenha);
         btCadastrar = (Button) findViewById(R.id.btCadastrar);
 
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://localbus-5f2fa.firebaseio.com/");
+        myRef = database.getReference("users");
+
         btCadastrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -53,42 +59,16 @@ public class CadastroActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "As senhas não conrrespondem!",
                             Toast.LENGTH_SHORT).show();
                 } else {
-                    Call<UserModel> callPut = service.putUser(new UserModel(etNome.getText().toString(), etEmail.getText().toString(), Integer.parseInt(etMatricula.getText().toString()), etCurso.getText().toString(), etSenha.getText().toString()), 1);
-                    callPut.enqueue(new Callback<UserModel>() {
-                        @Override
-                        public void onResponse(Call<UserModel> call, Response<UserModel> response) {
-                            UserModel user = response.body();
-                            Log.i("PUT", user.toString());
+                    myRef.push().setValue(new UserModel(etNome.getText().toString(), etEmail.getText().toString(), Integer.parseInt(etMatricula.getText().toString()), etCurso.getText().toString(), etSenha.getText().toString()), 1);
                             Toast.makeText(getApplicationContext(), "Usuário Cadastrado com Sucesso!",
                                     Toast.LENGTH_SHORT).show();
                         }
 
-                        @Override
-                        public void onFailure(Call<UserModel> call, Throwable t) {
-
-                        }
-                    });
 
                 }
-            }
-        });
+            });
+
 
     }
-
-    public void exibeUsers() {
-        final Call<List<UserModel>> callGetAll = service.getUsers();
-        callGetAll.enqueue(new Callback<List<UserModel>>() {
-            @Override
-            public void onResponse(Call<List<UserModel>> call, Response<List<UserModel>> response) {
-                for (UserModel user : response.body()) {
-                    Log.i("GET ALL", user.toString());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<UserModel>> call, Throwable t) {
-            }
-        });
-
     }
-}
+
